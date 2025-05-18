@@ -1,4 +1,4 @@
-mortgage_id,customer_id,loan_amount,interest_rate,loan_type,start_date,status,tenure
+loan_number,customer_id,loan_amount,interest_rate,loan_type,start_date,status,tenure
 M001,C001,250000,3.5%,Fixed-Rate 30yr,2020-05-15,Active,30
 M002,C002,350000,3.8%,Fixed-Rate 15yr,2021-01-20,Active,15
 M003,C003,180000,4.0%,Adjustable-Rate,2019-11-10,Active,N/A
