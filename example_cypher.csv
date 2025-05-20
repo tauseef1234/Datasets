@@ -1,58 +1,112 @@
-question,cypher
-Who is the oldest patient and how old are they?,"
-    MATCH (p:Patient)
-    RETURN p.name AS oldest_patient,
-        duration.between(date(p.dob), date()).years AS age
-    ORDER BY age DESC
-    LIMIT 1
-    "
-Which physician has billed the least to Cigna,"
-    MATCH (p:Payer)<-[c:COVERED_BY]-(v:Visit)-[t:TREATS]-(phy:Physician)
-    WHERE lower(p.name) = 'cigna'
-    RETURN phy.name AS physician_name, SUM(c.billing_amount) AS total_billed
-    ORDER BY total_billed
-    LIMIT 1
-    "
-How many non-emergency patients in North Carolina have written reviews?,"
-    match (r:Review)<-[:WRITES]-(v:Visit)-[:AT]->(h:Hospital)
-    where lower(h.state_name) = 'nc' and lower(v.admission_type) <> 'emergency'
-    return count(*)
-    "
-Which state had the largest percent increase in Cigna visits from 2022 to 2023?,"
-    MATCH (h:Hospital)<-[:AT]-(v:Visit)-[:COVERED_BY]->(p:Payer)
-    WHERE lower(p.name) = 'cigna' AND v.admission_date >= '2022-01-01' AND
-    v.admission_date < '2024-01-01'
-    WITH h.state_name AS state, COUNT(v) AS visit_count,
-        SUM(CASE WHEN v.admission_date >= '2022-01-01' AND
-        v.admission_date < '2023-01-01' THEN 1 ELSE 0 END) AS count_2022,
-        SUM(CASE WHEN v.admission_date >= '2023-01-01' AND
-        v.admission_date < '2024-01-01' THEN 1 ELSE 0 END) AS count_2023
-    WITH state, visit_count, count_2022, count_2023,
-        (toFloat(count_2023) - toFloat(count_2022)) / toFloat(count_2022) * 100
-        AS percent_increase
-    RETURN state, percent_increase
-    ORDER BY percent_increase DESC
-    LIMIT 1
-    "
-what is the average duration in days for closed elective visits?,"
-    MATCH (v:Visit)
-    WHERE lower(v.status) = 'discharged' AND lower(v.admission_type) = 'elective'
-    RETURN AVG(duration.inDays(date(v.admission_date), date(v.discharge_date)).days) AS average_duration_days
-    "
-what was the total billing amount charged by each hospital for 2023?,"
-    MATCH (p:Payer)<-[c:COVERED_BY]-(v:Visit)-[a:AT]-(h:Hospital)
-    WHERE v.admission_date >= '2023-01-01' AND v.admission_date < '2024-01-01'
-    RETURN h.name AS hospital_name, SUM(c.billing_amount) AS total_billing_amount
-    "
-"for visits that are missing chief complaints, what percentage have reviews?","
-    MATCH (v:Visit)
-    WHERE v.chief_complaint IS NULL
-    WITH COUNT(v) AS total_visits
-    MATCH (v)-[:WRITES]->(r:Review)
-    WITH total_visits, COUNT(r) AS visits_with_reviews
-    RETURN (toFloat(visits_with_reviews) / total_visits) * 100 AS percentage_with_reviews
-    "
-how much was billed for patient 123's stay?,"
-    MATCH (p:Patient {id: 123})-[:HAS]->(v:Visit)-[c:COVERED_BY]->(:Payer)
-RETURN SUM(c.billing_amount) AS total_billed
-    "
+{
+            "question": "What is the email address of the customer with customer ID 101?",
+            "cypher": "MATCH (c:Customer {customer_id: 101}) RETURN c.email",
+            "source": "customer_data"
+        },
+        {
+            "question": "Find all customers living in California.",
+            "cypher": "MATCH (c:Customer) WHERE c.state = 'CA' RETURN c.first_name, c.last_name, c.city",
+            "source": "customer_data"
+        },
+        {
+            "question": "How many female customers are there?",
+            "cypher": "MATCH (c:Customer) WHERE c.gender = 'Female' RETURN count(c) AS female_customer_count",
+            "source": "customer_data"
+        },
+        {
+            "question": "List customers with a credit score above 750.",
+            "cypher": "MATCH (c:Customer) WHERE c.credit_score > 750 RETURN c.first_name, c.last_name, c.credit_score",
+            "source": "customer_data"
+        },
+        {
+            "question": "What is the average income of customers in New York?",
+            "cypher": "MATCH (c:Customer) WHERE c.state = 'NY' RETURN avg(c.income) AS average_ny_income",
+            "source": "customer_data"
+        },
+        {
+            "question": "Find customers whose last name is 'Johnson'.",
+            "cypher": "MATCH (c:Customer) WHERE c.last_name = 'Johnson' RETURN c.first_name, c.last_name",
+            "source": "customer_data"
+        },
+        {
+            "question": "Which customers have an income greater than 80000 and live in Texas?",
+            "cypher": "MATCH (c:Customer) WHERE c.income > 80000 AND c.state = 'TX' RETURN c.first_name, c.last_name, c.income, c.state",
+            "source": "customer_data"
+        },
+        {
+            "question": "What are the credit scores of all customers in Florida?",
+            "cypher": "MATCH (c:Customer) WHERE c.state = 'FL' RETURN c.first_name, c.last_name, c.credit_score",
+            "source": "customer_data"
+        },
+
+        # Mortgage-related questions
+        {
+            "question": "What is the loan amount for mortgage ID M001?",
+            "cypher": "MATCH (m:Mortgage {mortgage_id: 'M001'}) RETURN m.loan_amount",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "List all mortgages with an interest rate greater than 0.04.",
+            "cypher": "MATCH (m:Mortgage) WHERE m.interest_rate > 0.04 RETURN m.mortgage_id, m.interest_rate",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "How many fixed-rate mortgages are currently active?",
+            "cypher": "MATCH (m:Mortgage) WHERE m.loan_type = 'Fixed' AND m.loan_status = 'Active' RETURN count(m) AS fixed_active_mortgages",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "Find the customer associated with mortgage ID M005.",
+            "cypher": "MATCH (c:Customer)-[:HAS_MORTGAGE]->(m:Mortgage {mortgage_id: 'M005'}) RETURN c.first_name, c.last_name",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "What are the loan amounts for all mortgages held by customer ID 102?",
+            "cypher": "MATCH (c:Customer {customer_id: 102})-[:HAS_MORTGAGE]->(m:Mortgage) RETURN m.mortgage_id, m.loan_amount",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "List all mortgages for properties located in New York state.",
+            "cypher": "MATCH (m:Mortgage) WHERE m.property_state = 'NY' RETURN m.mortgage_id, m.property_address",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "How many mortgages originated in 2022?",
+            "cypher": "MATCH (m:Mortgage) WHERE m.origination_date STARTS WITH '2022' RETURN count(m) AS mortgages_2022",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "What is the average loan term for adjustable-rate mortgages?",
+            "cypher": "MATCH (m:Mortgage) WHERE m.loan_type = 'Adjustable' RETURN avg(m.loan_term) AS average_adjustable_loan_term",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "Find customers who have more than one mortgage.",
+            "cypher": "MATCH (c:Customer)-[:HAS_MORTGAGE]->(m:Mortgage) WITH c, count(m) AS num_mortgages WHERE num_mortgages > 1 RETURN c.first_name, c.last_name, num_mortgages",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "What is the total loan amount for all active mortgages?",
+            "cypher": "MATCH (m:Mortgage) WHERE m.loan_status = 'Active' RETURN sum(m.loan_amount) AS total_active_loan_amount",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "Which customers have a mortgage with a loan amount over 500000?",
+            "cypher": "MATCH (c:Customer)-[:HAS_MORTGAGE]->(m:Mortgage) WHERE m.loan_amount > 500000 RETURN c.first_name, c.last_name, m.loan_amount",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "Find all customers who do not have any mortgages.",
+            "cypher": "MATCH (c:Customer) WHERE NOT (c)-[:HAS_MORTGAGE]->(:Mortgage) RETURN c.first_name, c.last_name",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "List the mortgage IDs and interest rates for all 'Fixed' type loans.",
+            "cypher": "MATCH (m:Mortgage) WHERE m.loan_type = 'Fixed' RETURN m.mortgage_id, m.interest_rate",
+            "source": "mortgage_data"
+        },
+        {
+            "question": "What is the highest credit score among customers who have an 'Active' mortgage?",
+            "cypher": "MATCH (c:Customer)-[:HAS_MORTGAGE]->(m:Mortgage) WHERE m.loan_status = 'Active' RETURN max(c.credit_score) AS max_credit_score_active_mortgage",
+            "source": "mortgage_data"
+        }
