@@ -7,3 +7,5 @@ What is the full address of Bob Johnson?,"
 MATCH (c:Customer {customer_name: 'Bob Johnson'}) RETURN c.address, c.city, c.state, c.zip, c.country"
 List all customer IDs and their corresponding names.,"
 MATCH (c:Customer) RETURN c.customer_id, c.customer_name"
+"What is the loan amount for loan number M001?",
+            "cypher": "MATCH (l:Loan {loan_number: 'M001'}) RETURN l.loan_amount"
