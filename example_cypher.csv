@@ -1,3 +1,4 @@
+question,cypher
 What is the email address of the customer with customer ID 101?,"
      MATCH (c:Customer {id: 101}) 
      RETURN c.email
