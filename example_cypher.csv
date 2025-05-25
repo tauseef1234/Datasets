@@ -1,5 +1,5 @@
 question,cypher
-What is the email address of the customer with customer ID 101?"
+What is the email address of the customer with customer ID 101?,"
 MATCH (c:Customer {id: 101}) RETURN c.email"
 Find all customers living in California.,"
 MATCH (c:Customer) WHERE c.state = 'CA' RETURN c.name"
