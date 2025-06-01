@@ -96,3 +96,7 @@ What is the loan amount for mortgage M005?,"
      WHERE m.loan_number = 'M005' 
      RETURN m.loan_amount
      "
+For customer 'Alice Smith' (C001), which of her payments covered which scheduled due dates?,"
+     MATCH (c:Customer {customer_id: 'C001'})-[:MADE_PAYMENT]->(p:Payment)-[:COVERS_SCHEDULED_PAYMENT]->(pd:PaymentDue) 
+     RETURN c.customer_name, p.payment_made_id, p.amount AS payment_amount, p.payment_date, pd.payment_due_id, pd.amount AS due_amount, pd.due_date
+     "
