@@ -1,0 +1,3 @@
+loan_number, bkr_filing_date, bkr_status, bkr_close_date
+M002, 2025-01-07, A, NULL
+M004, 2025-02-15, C, 2025-08-12
