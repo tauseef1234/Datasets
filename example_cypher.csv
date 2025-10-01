@@ -57,7 +57,7 @@ List all scheduled payments for Bob Johnson.,"
       WHERE c.customer_name = 'Bob Johnson' 
       RETURN pd.payment_due_id, pd.amount, pd.due_date, pd.status
       "
-Has Charlie Brown paid his late fee incurred on 2025-05-16?,"
+Has Charlie Brown paid his late fee incurred on 2025-06-16?,"
      MATCH (c:customer)-[:OWES]->(f:fee) 
      WHERE c.customer_name = 'Charlie Brown' AND f.fee_type = 'Late Fee' AND f.date_incurred = '2025-05-16' 
      RETURN f.status
