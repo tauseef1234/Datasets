@@ -96,3 +96,11 @@ What is the loan amount for mortgage M005?,"
      WHERE m.loan_number = 'M005' 
      RETURN m.loan_amount
      "
+Which mortgages are under bankruptcy?,"
+     MATCH (m:Mortgage)-[:CAN_BE_BANKRUPT]->(b:Bankruptcy)
+     RETURN   m.loan_number AS loan_number,
+              m.amount AS loan_amount,
+              b.status AS bankruptcy_status,
+              b.filing_date AS filing_date,
+              b.close_date AS close_date
+     "
