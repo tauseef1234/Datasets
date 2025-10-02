@@ -97,7 +97,7 @@ What is the loan amount for mortgage M005?,"
      RETURN m.loan_amount
      "
 Which mortgages are under bankruptcy?,"
-     MATCH (m:Mortgage)-[:IS_UNDER_BANKRUPT]->(b:Bankruptcy)
+     MATCH (m:Mortgage)-[:IS_UNDER_BANKRUPTCY]->(b:Bankruptcy)
      RETURN  m.loan_number AS loan_number,
              m.amount AS loan_amount,
              b.status AS bankruptcy_status,
@@ -105,7 +105,7 @@ Which mortgages are under bankruptcy?,"
              b.close_date AS close_date
      "
 Which mortgagers have late fee during bankruptcy?,"
-     MATCH (m:Mortgage)-[:CAN_BE_BANKRUPT]->(b:Bankruptcy)
+     MATCH (m:Mortgage)-[:IS_UNDER_BANKRUPTCY]->(b:Bankruptcy)
      MATCH (m)-[:HAS]->(f:Fees)
      WHERE f.type = "Late Fee"
        AND date(f.date_incurred) >= date(b.filing_date)
