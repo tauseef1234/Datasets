@@ -104,3 +104,18 @@ Which mortgages are under bankruptcy?,"
               b.filing_date AS filing_date,
               b.close_date AS close_date
      "
+Which mortgagers have late fee during bankruptcy?
+     MATCH (m:Mortgage)-[:CAN_BE_BANKRUPT]->(b:Bankruptcy)
+     MATCH (m)-[:HAS]->(f:Fees)
+     WHERE f.type = "Late Fee"
+       AND date(f.date_incurred) >= date(b.filing_date)
+       AND date(f.date_incurred) <= date(b.close_date)
+     RETURN   m.loan_number AS loan_number,
+              m.amount AS loan_amount,
+              f.amount AS late_fee_amount,
+              f.date_incurred AS fee_date,
+              f.status AS fee_status,
+              b.status AS bankruptcy_status,
+              b.filing_date AS filing_date,
+              b.close_date AS close_date
+     "
