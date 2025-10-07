@@ -104,3 +104,8 @@ Which mortgages are under bankruptcy?,"
             b.filing_date AS filing_date,
             b.close_date AS close_date 
      "
+What is the last payment date for mortgage M003 in the amortization payment schedule?,"
+     MATCH (p:Payment)-[:BELONGS_TO]->(l:Loan {loan_number: 'M003'})
+     RETURN l.loan_number AS mortgage_id,
+            MAX(p.due_date) AS last_payment_date
+     "
