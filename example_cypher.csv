@@ -104,11 +104,3 @@ Which mortgages are under bankruptcy?,"
             b.filing_date AS filing_date,
             b.close_date AS close_date 
      "
-What is the end date of the amortization payment schedule for loan number M001?," 
-     MATCH (l:Loan {loan_number: 'M001'})
-     WITH l, date(l.start_date) AS start_date
-     // Tenure is given in years; convert to months (30 years = 360 months)
-     WITH start_date, l.tenure * 12 AS total_months
-     RETURN start_date, 
-            start_date + duration({months: total_months}) AS end_date 
-     "
