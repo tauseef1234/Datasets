@@ -109,12 +109,10 @@ What is the last payment date or end payment date for mortgage M003?,"
      RETURN l.loan_number AS mortgage_id,
             MAX(p.due_date) AS last_payment_date
      "
-What is the latest payment due date (the earliest upcoming 'Scheduled' payment) for each mortgage?,"
-     MATCH (p:Payment)-[:BELONGS_TO]->(l:Loan)
-     WHERE p.status = 'Scheduled'
-     WITH l.loan_number AS mortgage_id, MIN(p.due_date) AS latest_due_date
-     RETURN mortgage_id, latest_due_date
-     ORDER BY latest_due_date ASC
+What is the current or latest payment due date for mortgage M005?,"
+     MATCH (p:Payment)-[:BELONGS_TO]->(l:Loan {loan_number: 'M005'})
+     RETURN l.loan_number AS mortgage_id,
+            MAX(p.due_date) AS latest_payment_due_date
      "
 What is the new amortization payment schedule for mortgage M005 if the customer starts paying $100 more per month from June 2025?,"
      MATCH (l:Loan {loan_number: 'M005'})-[:HAS_PAYMENT]->(p:Payment)
