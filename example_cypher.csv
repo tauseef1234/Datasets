@@ -142,3 +142,15 @@ What is the new amortization payment schedule for mortgage M005 if the customer 
      (date(l.start_date) + duration({months: l.tenure * 12 - floor(total_paid / (p.amount + 100))})) AS estimated_new_end_date,
      updated_payments AS adjusted_schedule
      "
+List all the late fees charged on mortgage M005,"
+     MATCH (l:Loan {loan_number: 'M005'})<-[:APPLIES_TO]-(f:LateFee)
+     RETURN
+     f.fee_id AS fee_id,
+     f.customer_id AS customer_id,
+     l.loan_number AS mortgage_id,
+     f.fee_type AS fee_type,
+     f.amount AS amount,
+     f.date_incurred AS date_incurred,
+     f.status AS status
+     ORDER BY f.date_incurred ASC
+"
