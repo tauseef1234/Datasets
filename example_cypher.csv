@@ -153,4 +153,4 @@ List all the late fees charged on mortgage M005,"
      f.date_incurred AS date_incurred,
      f.status AS status
      ORDER BY f.date_incurred ASC
-"
+     "
