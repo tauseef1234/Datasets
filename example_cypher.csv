@@ -114,31 +114,28 @@ What is the current or latest payment due date for mortgage M005?,"
      RETURN l.loan_number AS mortgage_id,
             MAX(p.due_date) AS latest_payment_due_date
      "
-What is the new amortization payment schedule for mortgage M005 if the customer starts paying $100 more per month from June 2025?,"
+What would be the new last payment date for mortgage M005 if the customer starts paying $100 more per month from June 2025 onwards?,"
      MATCH (l:Loan {loan_number: 'M005'})-[:HAS_PAYMENT]->(p:Payment)
      WITH l, p
-     WHERE date(p.due_date) >= date('2025-06-01')
-     WITH l, p,
-     (p.amount + 100) AS new_payment_amount
-     // Calculate new remaining balance after each increased payment
-     WITH l, p, new_payment_amount,
-     collect({
-     due_date: p.due_date,
-     original_amount: p.amount,
-     new_amount: new_payment_amount
-     }) AS updated_payments
-     // Estimate new amortization end date based on adjusted payments
+     ORDER BY date(p.due_date)
      WITH l,
-     reduce(total = 0, payment IN updated_payments | total + payment.new_amount) AS total_paid,
-     l.loan_amount AS original_balance,
-     l.interest_rate AS rate,
-     l.tenure AS tenure
-     RETURN l.loan_number AS mortgage_id,
-     l.customer_id AS customer,
-     date('2025-06-01') AS new_payment_start_date,
-     round(l.loan_amount - total_paid, 2) AS remaining_balance_estimate,
-     (date(l.start_date) + duration({months: l.tenure * 12 - floor(total_paid / (p.amount + 100))})) AS estimated_new_end_date,
-     updated_payments AS adjusted_schedule
+     COLLECT(
+     CASE
+     WHEN date(p.due_date) >= date('2025-06-01')
+     THEN p.amount + 100
+     ELSE p.amount
+     END
+     ) AS adjusted_payments,
+     COLLECT(p.due_date) AS due_dates,
+     l.loan_amount AS principal
+     WITH l, due_dates,
+     REDUCE(total = 0, amt IN adjusted_payments | total + amt) AS total_paid,
+     principal
+     WITH l, [d IN due_dates WHERE total_paid >= principal | d][-1] AS new_last_payment_date
+     RETURN
+     l.loan_number AS mortgage_id,
+     date('2025-06-01') AS extra_payment_start_date,
+     new_last_payment_date AS estimated_new_last_payment_date
      "
 List all the late fees charged on mortgage M005,"
      MATCH (l:Loan {loan_number: 'M005'})<-[:APPLIES_TO]-(f:LateFee)
